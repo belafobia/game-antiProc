@@ -4,6 +4,7 @@
 
 const API_URL = import.meta.env.VITE_API_URL;
 const TOKEN_KEY = "token";
+export const AUTH_EXPIRED_EVENT = "auth:expired";
 
 // localStorage: simples e sobrevive a fechar o app. A troca: se o site tiver
 // uma falha de XSS, um script consegue ler o token. Aceitável para um app de
@@ -21,6 +22,10 @@ export class ApiError extends Error {
     super(message);
     this.status = status;
   }
+}
+
+export function errorMessage(err: unknown): string {
+  return err instanceof ApiError ? err.message : "Erro inesperado";
 }
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -41,8 +46,12 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     throw new ApiError(0, "Não foi possível falar com o servidor");
   }
 
-  // Token vencido ou inválido: descarta, e o app volta para o login.
-  if (response.status === 401) auth.clear();
+  // Token vencido ou inválido: descarta e avisa o App, que volta para o login.
+  // Evento em vez de cada tela tratar o 401: a regra fica num lugar só.
+  if (response.status === 401) {
+    auth.clear();
+    window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+  }
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);

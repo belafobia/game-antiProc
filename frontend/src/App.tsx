@@ -1,26 +1,67 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { auth } from "./api";
-import { Home } from "./pages/Home";
+import { AUTH_EXPIRED_EVENT, auth } from "./api";
+import { Layout } from "./components/Layout";
+import { LoadError } from "./components/PageState";
+import { useResource } from "./hooks/useResource";
+import { useHashPage } from "./lib/router";
 import { Login } from "./pages/Login";
+import { RewardsPage } from "./pages/Rewards";
+import { TasksPage } from "./pages/Tasks";
+import { WeekPage } from "./pages/Week";
+import type { Me } from "./types";
 
 // Portão de autenticação: com token, o app; sem token, o login.
-// O token é só "provavelmente válido": se tiver vencido, a primeira chamada
-// à API devolve 401 e a Home chama onLogout.
 export default function App() {
   const [token, setToken] = useState(auth.get);
+
+  // O api.ts avisa quando a API recusa o token (401): volta para o login.
+  useEffect(() => {
+    const onExpired = () => setToken(null);
+    window.addEventListener(AUTH_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onExpired);
+  }, []);
 
   const handleLogin = useCallback((newToken: string) => {
     auth.set(newToken);
     setToken(newToken);
   }, []);
 
-  // useCallback: a Home usa onLogout como dependência do useEffect. Sem isso,
-  // uma função nova a cada render faria o efeito (e a chamada /me) repetir.
   const handleLogout = useCallback(() => {
     auth.clear();
     setToken(null);
   }, []);
 
-  return token ? <Home onLogout={handleLogout} /> : <Login onLogin={handleLogin} />;
+  return token ? <Shell onLogout={handleLogout} /> : <Login onLogin={handleLogin} />;
+}
+
+function Shell({ onLogout }: { onLogout: () => void }) {
+  const { data: me, error, reload } = useResource<Me>("/me");
+  const [page, navigate] = useHashPage();
+
+  if (error) {
+    return (
+      <main className="center">
+        <LoadError message={error} onRetry={reload} />
+      </main>
+    );
+  }
+  if (!me) {
+    return (
+      <main className="center" role="status">
+        <div>
+          <div className="spinner" />
+          <p className="hint">Carregando…</p>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <Layout me={me} page={page} onNavigate={navigate} onLogout={onLogout}>
+      {page === "semana" && <WeekPage onNavigate={navigate} />}
+      {page === "tarefas" && <TasksPage />}
+      {page === "recompensas" && <RewardsPage />}
+    </Layout>
+  );
 }
