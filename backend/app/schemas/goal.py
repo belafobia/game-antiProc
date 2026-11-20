@@ -1,0 +1,85 @@
+import uuid
+from datetime import date, datetime
+from typing import Annotated, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, computed_field
+
+# Os mesmos valores das CHECK constraints do banco.
+Category = Literal[
+    "financeira",
+    "saude",
+    "educacao",
+    "profissional",
+    "pessoal",
+    "relacionamentos",
+    "lazer",
+    "outra",
+]
+Difficulty = Literal["facil", "media", "dificil", "muito_dificil"]
+
+
+class GoalCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=2000)
+    category: Category
+    difficulty: Difficulty
+    deadline: date
+    # Opcional: já criar a meta com os passos (ex.: os livros da lista).
+    subtasks: list[Annotated[str, Field(min_length=1, max_length=200)]] = Field(
+        default_factory=list, max_length=200
+    )
+
+
+class GoalUpdate(BaseModel):
+    """PATCH: só os campos enviados são alterados. `active=false` arquiva."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=2000)
+    category: Category | None = None
+    difficulty: Difficulty | None = None
+    deadline: date | None = None
+    active: bool | None = None
+
+
+class SubtaskCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+
+
+class SubtaskUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    # true = marcar como feita, false = voltar para pendente.
+    done: bool | None = None
+
+
+class SubtaskOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    done_at: datetime | None
+    created_at: datetime
+
+    @computed_field
+    @property
+    def done(self) -> bool:
+        return self.done_at is not None
+
+
+class GoalOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    description: str | None
+    category: Category
+    difficulty: Difficulty
+    deadline: date
+    active: bool
+    created_at: datetime
+    subtasks_total: int
+    subtasks_done: int
+    # 0 a 100, arredondado para baixo.
+    progress: int
+    completed: bool
+
+
+class GoalDetailOut(GoalOut):
+    subtasks: list[SubtaskOut]

@@ -1,0 +1,18 @@
+# Segredos: entram no container por variável de ambiente, nunca pela imagem.
+.env
+
+# A .venv local é do macOS; a imagem cria a sua própria (Linux).
+.venv/
+
+# Caches e lixo
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+.DS_Store
+
+# Não precisa ir para a imagem de produção
+tests/
+Dockerfile
+.dockerignore
