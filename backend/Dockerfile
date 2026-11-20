@@ -38,4 +38,8 @@ EXPOSE 8000
 # conexões de dentro do próprio container.
 # As migrations (alembic upgrade head) NÃO rodam aqui de propósito: são um
 # passo separado do deploy, para não rodarem em paralelo se houver várias réplicas.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Porta: o Render (e outros hosts) informa qual usar na variável PORT. Sem ela
+# (ex.: rodando local), usa 8000.
+# sh -c: no formato ["..."] sozinho, ${PORT} não seria trocado pelo valor.
+# exec: o uvicorn assume o processo, e recebe direto o sinal de desligar.
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
