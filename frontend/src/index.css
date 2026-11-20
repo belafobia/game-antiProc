@@ -1126,3 +1126,326 @@ textarea.input {
   font-weight: 600;
   color: var(--tier-color);
 }
+
+/* ---------- Utilidades extras ---------- */
+
+.text-error {
+  color: var(--error);
+}
+
+/* Some da tela, mas continua sendo lido por leitores de tela. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section h2 {
+  font-size: 16px;
+}
+
+.field-title {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.form-row {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 420px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+select.input {
+  appearance: none;
+  padding-right: 32px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+@media (max-width: 420px) {
+  .segmented {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---------- Metas ---------- */
+
+.goal-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .goal-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .goal-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.goal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 16px;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: var(--bg-bar);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--goal-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.goal-card:hover {
+  background: var(--bg-hover);
+}
+
+.goal-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.goal-card > .tag {
+  align-self: flex-start;
+}
+
+.goal-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.goal-tag {
+  color: var(--goal-color);
+}
+
+.goal-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+
+.goal-deadline {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.goal-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goal-progress .progress {
+  flex: 1;
+}
+
+.goal-progress-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.difficulty {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.difficulty > span:not(.difficulty-label) {
+  width: 6px;
+  height: 12px;
+  background: var(--border-input);
+  border-radius: 2px;
+}
+
+.difficulty > span.on {
+  background: var(--syntax-orange);
+}
+
+.difficulty-label {
+  margin-left: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.goal-detail-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.goal-detail-name {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.step .check {
+  flex: 1;
+}
+
+.add-step {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.add-step .button {
+  flex: none;
+  width: 44px;
+  padding: 0;
+}
+
+/* ---------- Vales ---------- */
+
+.tier-stats {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 420px) {
+  .tier-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.tier-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  background: var(--bg-bar);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--tier-color);
+  border-radius: var(--radius);
+}
+
+.tier-stat.is-empty {
+  opacity: 0.55;
+}
+
+.tier-stat-count {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--tier-color);
+}
+
+.tier-stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.grant-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg-bar);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--tier-color);
+}
+
+.grant-row.is-used {
+  opacity: 0.75;
+}
+
+.grant-row.is-used .grant-title {
+  color: var(--text-strong);
+}
+
+@media (max-width: 420px) {
+  .grant-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.goal-badges:empty {
+  display: none;
+}
+
+/* Aviso de vale ganho ao concluir a meta. */
+.celebrate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--tier-color);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+}
+
+.celebrate strong {
+  color: var(--tier-color);
+}
+
+.celebrate p {
+  font-size: 14px;
+}
+
+@media (max-width: 480px) {
+  .celebrate .button {
+    width: 100%;
+  }
+}

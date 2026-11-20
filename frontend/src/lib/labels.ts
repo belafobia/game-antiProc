@@ -1,4 +1,4 @@
-import type { Period, Tier } from "../types";
+import type { Difficulty, GoalCategory, Period, Tier } from "../types";
 
 // Índice = convenção da API (0 = segunda ... 6 = domingo).
 export const WEEKDAYS = [
@@ -48,4 +48,36 @@ export const PERIOD_LABEL: Record<Period, string> = {
   mes: "do mês",
   semestre: "do semestre",
   ano: "do ano",
+  meta: "da meta",
 };
+
+export const CATEGORIES: Record<GoalCategory, { label: string; color: string }> = {
+  financeira: { label: "Financeira", color: "var(--syntax-green)" },
+  saude: { label: "Saúde", color: "var(--syntax-teal)" },
+  educacao: { label: "Educação", color: "var(--syntax-blue)" },
+  profissional: { label: "Profissional", color: "var(--syntax-lightblue)" },
+  pessoal: { label: "Pessoal", color: "var(--syntax-purple)" },
+  relacionamentos: { label: "Relacionamentos", color: "var(--syntax-orange)" },
+  lazer: { label: "Lazer", color: "var(--syntax-yellow)" },
+  outra: { label: "Outra", color: "var(--text-muted)" },
+};
+
+export const CATEGORY_ORDER = Object.keys(CATEGORIES) as GoalCategory[];
+
+// level: quantos dos 4 pontinhos acendem no indicador de dificuldade.
+export const DIFFICULTIES: Record<Difficulty, { label: string; level: number }> = {
+  facil: { label: "Fácil", level: 1 },
+  media: { label: "Média", level: 2 },
+  dificil: { label: "Difícil", level: 3 },
+  muito_dificil: { label: "Muito difícil", level: 4 },
+};
+
+// Dificuldade da meta concluída no prazo -> nível do vale (igual ao backend).
+export const GOAL_TIER: Record<Difficulty, Tier> = {
+  facil: "basica",
+  media: "media",
+  dificil: "boa",
+  muito_dificil: "muito_boa",
+};
+
+export const DIFFICULTY_ORDER = Object.keys(DIFFICULTIES) as Difficulty[];

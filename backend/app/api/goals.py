@@ -1,11 +1,11 @@
 import uuid
 
 from fastapi import APIRouter, status
-from sqlalchemy import func
 
 from app.api.deps import CurrentUser, DbSession
 from app.models import Goal, GoalSubtask
 from app.schemas.goal import (
+    GoalChangeOut,
     GoalCreate,
     GoalDetailOut,
     GoalOut,
@@ -14,12 +14,13 @@ from app.schemas.goal import (
     SubtaskOut,
     SubtaskUpdate,
 )
+from app.schemas.grant import GrantOut
+from app.services import goals as goals_service
 from app.services.errors import InvalidInputError
 from app.services.goals import (
     GoalProgress,
     get_goal,
     get_goal_progress,
-    get_subtask,
     list_goals,
     list_subtasks,
 )
@@ -44,6 +45,9 @@ def _goal_out(p: GoalProgress) -> dict:
         subtasks_done=p.done,
         progress=p.percent,
         completed=p.completed,
+        grant_id=p.grant.id if p.grant else None,
+        grant_tier=p.grant.tier if p.grant else None,
+        grant_redeemed=bool(p.grant and p.grant.reward_id),
     )
 
 
@@ -95,23 +99,30 @@ def update_goal(goal_id: uuid.UUID, body: GoalUpdate, user: CurrentUser, db: DbS
     return _detail(db, user.id, goal_id)
 
 
+# As mudanças nos passos devolvem a meta inteira (porcentagem já recalculada)
+# e o vale novo, se a mudança concluiu a meta no prazo.
+
+
+def _change_out(db: DbSession, user_id: uuid.UUID, goal_id: uuid.UUID, new_grant) -> GoalChangeOut:
+    return GoalChangeOut(
+        goal=_detail(db, user_id, goal_id),
+        new_grant=GrantOut.model_validate(new_grant) if new_grant else None,
+    )
+
+
 @router.post(
     "/{goal_id}/subtasks",
-    response_model=SubtaskOut,
+    response_model=GoalChangeOut,
     status_code=status.HTTP_201_CREATED,
 )
 def add_subtask(
     goal_id: uuid.UUID, body: SubtaskCreate, user: CurrentUser, db: DbSession
 ):
-    goal = get_goal(db, user.id, goal_id)
-    subtask = GoalSubtask(user_id=user.id, goal_id=goal.id, name=body.name)
-    db.add(subtask)
-    db.commit()
-    db.refresh(subtask)
-    return subtask
+    new_grant = goals_service.add_subtask(db, user, goal_id, body.name)
+    return _change_out(db, user.id, goal_id, new_grant)
 
 
-@router.patch("/{goal_id}/subtasks/{subtask_id}", response_model=SubtaskOut)
+@router.patch("/{goal_id}/subtasks/{subtask_id}", response_model=GoalChangeOut)
 def update_subtask(
     goal_id: uuid.UUID,
     subtask_id: uuid.UUID,
@@ -119,24 +130,18 @@ def update_subtask(
     user: CurrentUser,
     db: DbSession,
 ):
-    subtask = get_subtask(db, user.id, goal_id, subtask_id)
     changes = body.model_dump(exclude_unset=True)
-    if "name" in changes:
-        apply_patch(subtask, {"name": changes["name"]}, nullable=set())
-    if changes.get("done") is True and subtask.done_at is None:
-        subtask.done_at = func.now()
-    elif changes.get("done") is False:
-        subtask.done_at = None
-    db.commit()
-    db.refresh(subtask)
-    return subtask
+    if "name" in changes and changes["name"] is None:
+        raise InvalidInputError("O campo 'name' não pode ser nulo")
+    new_grant = goals_service.set_subtask(
+        db, user, goal_id, subtask_id, name=changes.get("name"), done=changes.get("done")
+    )
+    return _change_out(db, user.id, goal_id, new_grant)
 
 
-@router.delete(
-    "/{goal_id}/subtasks/{subtask_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/{goal_id}/subtasks/{subtask_id}", response_model=GoalChangeOut)
 def delete_subtask(
     goal_id: uuid.UUID, subtask_id: uuid.UUID, user: CurrentUser, db: DbSession
 ):
-    db.delete(get_subtask(db, user.id, goal_id, subtask_id))
-    db.commit()
+    new_grant = goals_service.delete_subtask(db, user, goal_id, subtask_id)
+    return _change_out(db, user.id, goal_id, new_grant)

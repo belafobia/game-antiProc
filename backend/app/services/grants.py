@@ -49,7 +49,9 @@ def grant_for_complete_week(
 
 
 def _grant(db: Session, user_id: uuid.UUID, period: str, start: date) -> RewardGrant:
-    grant = RewardGrant(user_id=user_id, period=period, period_start=start)
+    grant = RewardGrant(
+        user_id=user_id, period=period, period_start=start, tier=PERIOD_TIER[period]
+    )
     db.add(grant)
     # flush: o degrau de cima conta os vales do banco, então este precisa
     # já estar lá (dentro da mesma transação) antes da próxima contagem.
@@ -104,7 +106,7 @@ def redeem_grant(
         raise NotFoundError("Recompensa não encontrada")
     if not reward.active:
         raise ConflictError("Recompensa arquivada")
-    if reward.tier != PERIOD_TIER[grant.period]:
+    if reward.tier != grant.tier:
         raise ConflictError(
             f"Este vale é de recompensa '{grant.tier}', "
             f"e a escolhida é '{reward.tier}'"

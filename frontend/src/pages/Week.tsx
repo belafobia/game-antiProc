@@ -310,9 +310,15 @@ export function WeekPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
               <p>Desta vez não deu vale. Semana que vem tem outra chance.</p>
             )}
             <div className="form-actions">
-              <button className="button" onClick={() => setCloseResult(null)}>
-                OK
-              </button>
+              {closeResult.grants.length > 0 ? (
+                <button className="button" onClick={() => onNavigate("vales")}>
+                  Ver meus vales
+                </button>
+              ) : (
+                <button className="button" onClick={() => setCloseResult(null)}>
+                  OK
+                </button>
+              )}
             </div>
           </div>
         )}

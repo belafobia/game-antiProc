@@ -5,6 +5,8 @@ import { Layout } from "./components/Layout";
 import { LoadError } from "./components/PageState";
 import { useResource } from "./hooks/useResource";
 import { useHashPage } from "./lib/router";
+import { GoalsPage } from "./pages/Goals";
+import { GrantsPage } from "./pages/Grants";
 import { Login } from "./pages/Login";
 import { RewardsPage } from "./pages/Rewards";
 import { TasksPage } from "./pages/Tasks";
@@ -61,7 +63,9 @@ function Shell({ onLogout }: { onLogout: () => void }) {
     <Layout me={me} page={page} onNavigate={navigate} onLogout={onLogout}>
       {page === "semana" && <WeekPage onNavigate={navigate} />}
       {page === "tarefas" && <TasksPage />}
+      {page === "metas" && <GoalsPage onNavigate={navigate} />}
       {page === "recompensas" && <RewardsPage />}
+      {page === "vales" && <GrantsPage onNavigate={navigate} />}
     </Layout>
   );
 }

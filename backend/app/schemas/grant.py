@@ -6,7 +6,8 @@ from pydantic import BaseModel, ConfigDict
 
 from app.schemas.reward import Tier
 
-Period = Literal["semana", "mes", "semestre", "ano"]
+# "meta": vale de meta concluída no prazo (goal_id/goal_name preenchidos).
+Period = Literal["semana", "mes", "semestre", "ano", "meta"]
 
 
 class GrantOut(BaseModel):
@@ -16,6 +17,8 @@ class GrantOut(BaseModel):
     period: Period
     period_start: date
     tier: Tier
+    goal_id: uuid.UUID | None
+    goal_name: str | None
     granted_at: datetime
     # Ambos NULL enquanto o vale não foi usado.
     reward_id: uuid.UUID | None

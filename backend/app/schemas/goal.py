@@ -4,6 +4,9 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
+from app.schemas.grant import GrantOut
+from app.schemas.reward import Tier
+
 # Os mesmos valores das CHECK constraints do banco.
 Category = Literal[
     "financeira",
@@ -79,7 +82,20 @@ class GoalOut(BaseModel):
     # 0 a 100, arredondado para baixo.
     progress: int
     completed: bool
+    # Vale da meta: existe se foi concluída no prazo. NULL = sem vale
+    # (ainda não concluída, ou concluída depois do prazo).
+    grant_id: uuid.UUID | None
+    grant_tier: Tier | None
+    grant_redeemed: bool
 
 
 class GoalDetailOut(GoalOut):
     subtasks: list[SubtaskOut]
+
+
+class GoalChangeOut(BaseModel):
+    """Resposta das mudanças nos passos: a meta atualizada e, se a mudança
+    concluiu a meta no prazo, o vale que acabou de sair."""
+
+    goal: GoalDetailOut
+    new_grant: GrantOut | None

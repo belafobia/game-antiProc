@@ -65,13 +65,16 @@ export type Completion = {
   completed_at: string;
 };
 
-export type Period = "semana" | "mes" | "semestre" | "ano";
+// "meta": vale de meta concluída no prazo.
+export type Period = "semana" | "mes" | "semestre" | "ano" | "meta";
 
 export type Grant = {
   id: string;
   period: Period;
   period_start: string;
   tier: Tier;
+  goal_id: string | null;
+  goal_name: string | null;
   granted_at: string;
   reward_id: string | null;
   redeemed_at: string | null;
@@ -82,4 +85,53 @@ export type WeekClose = {
   complete: boolean;
   closed_at: string;
   grants: Grant[];
+};
+
+export type GoalCategory =
+  | "financeira"
+  | "saude"
+  | "educacao"
+  | "profissional"
+  | "pessoal"
+  | "relacionamentos"
+  | "lazer"
+  | "outra";
+
+export type Difficulty = "facil" | "media" | "dificil" | "muito_dificil";
+
+export type Goal = {
+  id: string;
+  name: string;
+  description: string | null;
+  category: GoalCategory;
+  difficulty: Difficulty;
+  deadline: string;
+  active: boolean;
+  created_at: string;
+  subtasks_total: number;
+  subtasks_done: number;
+  // 0 a 100, arredondado para baixo
+  progress: number;
+  completed: boolean;
+  // Vale da meta: só existe se foi concluída no prazo.
+  grant_id: string | null;
+  grant_tier: Tier | null;
+  grant_redeemed: boolean;
+};
+
+export type Subtask = {
+  id: string;
+  name: string;
+  done: boolean;
+  done_at: string | null;
+  created_at: string;
+};
+
+export type GoalDetail = Goal & { subtasks: Subtask[] };
+
+// Resposta das mudanças nos passos: a meta atualizada e o vale que acabou de
+// sair, se a mudança concluiu a meta no prazo.
+export type GoalChange = {
+  goal: GoalDetail;
+  new_grant: Grant | null;
 };

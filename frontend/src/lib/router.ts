@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 // botão "voltar" do navegador/celular funciona. Com o "#", a Vercel não
 // precisa de configuração extra: o servidor sempre entrega o mesmo index.html.
 
-export const PAGES = ["semana", "tarefas", "recompensas"] as const;
+export const PAGES = ["semana", "tarefas", "metas", "recompensas", "vales"] as const;
 export type Page = (typeof PAGES)[number];
 
 function readHash(): Page {

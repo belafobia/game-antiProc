@@ -12,13 +12,12 @@ import {
   TicketIcon,
 } from "./icons";
 
-// Metas e Vales ainda não têm tela: aparecem desabilitados ("em breve").
-const NAV: { id: Page | null; label: string; Icon: (p: { className?: string }) => ReactNode }[] = [
+const NAV: { id: Page; label: string; Icon: (p: { className?: string }) => ReactNode }[] = [
   { id: "semana", label: "Semana", Icon: CalendarIcon },
   { id: "tarefas", label: "Tarefas", Icon: ListIcon },
-  { id: null, label: "Metas", Icon: TargetIcon },
+  { id: "metas", label: "Metas", Icon: TargetIcon },
   { id: "recompensas", label: "Recompensas", Icon: GiftIcon },
-  { id: null, label: "Vales", Icon: TicketIcon },
+  { id: "vales", label: "Vales", Icon: TicketIcon },
 ];
 
 export function Brand() {
@@ -53,9 +52,7 @@ export function Layout({ me, page, onNavigate, onLogout, children }: Props) {
               key={label}
               className="nav-item"
               aria-current={id === page ? "page" : undefined}
-              disabled={id === null}
-              title={id === null ? "Em breve" : undefined}
-              onClick={() => id && onNavigate(id)}
+              onClick={() => onNavigate(id)}
             >
               <Icon />
               <span>{label}</span>
