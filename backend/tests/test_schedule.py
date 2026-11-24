@@ -29,18 +29,30 @@ def test_task_does_not_count_before_it_starts():
     assert is_scheduled(academia, date(2026, 11, 20))  # sexta
 
 
-def test_week_complete_only_when_every_occurrence_is_checked():
+def test_week_counts_from_90_percent():
     gatas = FakeTask("Cuidar das gatas", weekdays=list(range(7)))
     jiu = FakeTask("Jiu Jitsu", weekdays=[0, 1, 2])
     checks = {(gatas.id, MONDAY.replace(day=16 + i)): uuid.uuid4() for i in range(7)}
     checks |= {(jiu.id, MONDAY.replace(day=16 + i)): uuid.uuid4() for i in range(2)}
 
+    # 9 de 10 = 90% exatos: já vale.
     week = build_week(MONDAY, [gatas, jiu], checks)
     assert (week.total, week.done, week.percent) == (10, 9, 90)
-    assert not week.complete
+    assert week.complete
 
-    checks[(jiu.id, date(2026, 11, 18))] = uuid.uuid4()
-    assert build_week(MONDAY, [gatas, jiu], checks).complete
+    # 8 de 10 = 80%: não vale.
+    del checks[(jiu.id, date(2026, 11, 17))]
+    assert not build_week(MONDAY, [gatas, jiu], checks).complete
+
+
+def test_week_just_below_90_percent_does_not_count():
+    # 17 de 19 = 89,47%: arredondaria para 89, e mesmo sem arredondar fica
+    # abaixo de 90. Não vale.
+    tasks = [FakeTask(f"t{i}", weekdays=[0]) for i in range(19)]
+    checks = {(t.id, MONDAY): uuid.uuid4() for t in tasks[:17]}
+    week = build_week(MONDAY, tasks, checks)
+    assert week.percent == 89
+    assert not week.complete
 
 
 def test_empty_week_is_not_complete():

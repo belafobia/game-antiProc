@@ -5,7 +5,7 @@ import { Dialog } from "../components/Dialog";
 import { LoadError, Loading } from "../components/PageState";
 import { useResource } from "../hooks/useResource";
 import { addDays, formatDayMonth, formatMonthYear, formatTimestamp, parseISODate } from "../lib/dates";
-import { TIER_ORDER, TIERS } from "../lib/labels";
+import { TIER_ORDER, TIERS, WEEK_GOAL_PERCENT } from "../lib/labels";
 import type { Page } from "../lib/router";
 import type { Grant, Reward } from "../types";
 
@@ -64,7 +64,7 @@ export function GrantsPage({ onNavigate }: { onNavigate: (page: Page) => void })
         <div>
           <h1>Vales</h1>
           <p className="hint">
-            Semana completa vale uma básica; mês, uma média; semestre, uma boa; ano, uma muito boa.
+            Semana com {WEEK_GOAL_PERCENT}% ou mais vale uma básica; mês, uma média; semestre, uma boa; ano, uma muito boa.
             Metas concluídas no prazo também dão vale, pelo nível de dificuldade.
           </p>
         </div>
@@ -92,8 +92,8 @@ export function GrantsPage({ onNavigate }: { onNavigate: (page: Page) => void })
           <div className="empty">
             <p>Nenhum vale disponível.</p>
             <p className="hint">
-              Complete todas as tarefas da semana e feche-a no domingo, ou conclua uma meta no
-              prazo.
+              Faça pelo menos {WEEK_GOAL_PERCENT}% das tarefas da semana e feche-a no domingo, ou
+              conclua uma meta no prazo.
             </p>
             <button className="button" onClick={() => onNavigate("semana")}>
               Ir para a semana

@@ -6,7 +6,7 @@ import { CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "../components/icon
 import { LoadError, Loading } from "../components/PageState";
 import { useResource } from "../hooks/useResource";
 import { addDays, formatDayMonth, formatRange, todayISO, weekdayIndex } from "../lib/dates";
-import { PERIOD_LABEL, TIERS, WEEKDAYS } from "../lib/labels";
+import { PERIOD_LABEL, TIERS, WEEKDAYS, WEEK_GOAL_PERCENT } from "../lib/labels";
 import type { Page } from "../lib/router";
 import type { Completion, Occurrence, Week, WeekClose } from "../types";
 
@@ -30,9 +30,10 @@ function withCheck(week: Week, day: string, taskId: string, completionId: string
     ...week,
     days,
     done,
-    // Mesma regra do backend: arredonda para baixo, semana vazia não é completa.
+    // Mesma regra do backend: arredonda para baixo; a semana vale a partir de
+    // WEEK_GOAL_PERCENT (conta só com inteiros); semana vazia não vale.
     percent: week.total ? Math.floor((done * 100) / week.total) : 0,
-    complete: week.total > 0 && done === week.total,
+    complete: week.total > 0 && done * 100 >= WEEK_GOAL_PERCENT * week.total,
   };
 }
 
@@ -144,7 +145,9 @@ export function WeekPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
           <span>
             <strong>{week.done}</strong> de {week.total} feitas
           </span>
-          <span className="progress-percent">{week.percent}%</span>
+          <span className="progress-percent">
+            {week.percent}% <span className="hint">(meta: {WEEK_GOAL_PERCENT}%)</span>
+          </span>
         </div>
         <div
           className="progress"
@@ -163,8 +166,8 @@ export function WeekPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
         {week.closed ? (
           <p className={`status ${week.complete ? "status-ok" : "status-muted"}`}>
             {week.complete
-              ? "Semana fechada e completa: vale básico garantido."
-              : "Semana fechada, mas incompleta. Sem vale desta vez."}
+              ? "Semana fechada e meta batida: vale básico garantido."
+              : `Semana fechada sem chegar a ${WEEK_GOAL_PERCENT}%. Sem vale desta vez.`}
           </p>
         ) : canClose ? (
           <div className="close-row">
@@ -263,8 +266,8 @@ export function WeekPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
             Você fez <strong>{week.done}</strong> de {week.total} tarefas (
             {week.percent}%).{" "}
             {week.complete
-              ? "Semana completa: fechando agora você ganha o vale básico."
-              : "A semana não está completa, então não vai dar vale."}
+              ? `Passou de ${WEEK_GOAL_PERCENT}%: fechando agora você ganha o vale básico.`
+              : `A semana não chegou a ${WEEK_GOAL_PERCENT}%, então não vai dar vale.`}
           </p>
           <p className="hint">
             Depois de fechada, a semana não aceita mais checks nem desfazer. O resultado fica
@@ -283,7 +286,7 @@ export function WeekPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
 
       <Dialog
         open={closeResult !== null}
-        title={closeResult?.complete ? "Semana completa!" : "Semana fechada"}
+        title={closeResult?.complete ? "Meta da semana batida!" : "Semana fechada"}
         onClose={() => setCloseResult(null)}
       >
         {closeResult && (

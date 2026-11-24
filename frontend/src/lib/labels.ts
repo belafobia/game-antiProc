@@ -1,5 +1,10 @@
 import type { Difficulty, GoalCategory, Period, Tier } from "../types";
 
+// A semana vale (vale básico, e conta para mês/semestre/ano) a partir desta
+// porcentagem. Mesma regra do backend: WEEK_GOAL_PERCENT em
+// backend/app/services/schedule.py. Mudou lá, muda aqui.
+export const WEEK_GOAL_PERCENT = 90;
+
 // Índice = convenção da API (0 = segunda ... 6 = domingo).
 export const WEEKDAYS = [
   { short: "Seg", long: "Segunda" },
@@ -18,25 +23,25 @@ export const TIERS: Record<
   basica: {
     label: "Básica",
     rule: "Um fim de semana: amigos, cinema, namorada",
-    earnedBy: "semana completa",
+    earnedBy: `semana com ${WEEK_GOAL_PERCENT}% ou mais`,
     color: "var(--syntax-green)",
   },
   media: {
     label: "Média",
     rule: "Comprar algo até R$ 200",
-    earnedBy: "mês completo",
+    earnedBy: "todas as semanas do mês",
     color: "var(--syntax-blue)",
   },
   boa: {
     label: "Boa",
     rule: "Comprar algo até R$ 500",
-    earnedBy: "semestre completo",
+    earnedBy: "todos os meses do semestre",
     color: "var(--syntax-purple)",
   },
   muito_boa: {
     label: "Muito boa",
     rule: "Comprar algo acima de R$ 500 ou viajar",
-    earnedBy: "ano completo",
+    earnedBy: "os 2 semestres do ano",
     color: "var(--syntax-yellow)",
   },
 };
