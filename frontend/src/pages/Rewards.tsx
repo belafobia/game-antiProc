@@ -28,7 +28,7 @@ export function RewardsPage() {
         <div>
           <h1>Recompensas</h1>
           <p className="hint">
-            Cada período completo dá um vale. Você usa o vale escolhendo uma recompensa do mesmo
+            Cada semana, mês, semestre ou ano batido dá um vale. Você usa o vale escolhendo uma recompensa do mesmo
             nível.
           </p>
         </div>

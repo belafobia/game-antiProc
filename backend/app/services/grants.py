@@ -20,8 +20,8 @@ def grant_for_complete_week(
 ) -> list[RewardGrant]:
     """Dá o vale da semana e sobe a escada enquanto os períodos fecharem.
 
-    - semana completa                      -> básica
-    - todas as semanas do mês completas    -> média
+    - semana que valeu (90%+)              -> básica
+    - todas as semanas do mês valeram      -> média
     - todos os 6 meses do semestre         -> boa
     - os 2 semestres do ano                -> muito boa
 

@@ -1,7 +1,7 @@
 """Quais tarefas caem em cada dia, e quanto da semana já foi feito.
 
 Sem banco: recebe as tarefas e os checks já carregados. Isso deixa a regra
-"semana completa" testável sem Postgres.
+"a semana valeu" testável sem Postgres.
 """
 
 import uuid
@@ -11,6 +11,11 @@ from typing import Protocol
 
 from app.services.periods import week_days, week_sunday
 from app.services.progress import percent
+
+# A semana vale (dá vale básico e conta para mês/semestre/ano) a partir desta
+# porcentagem de tarefas feitas. 90 inclui os 90% exatos.
+# Se mudar, mude também WEEK_GOAL_PERCENT no front (frontend/src/lib/labels.ts).
+WEEK_GOAL_PERCENT = 90
 
 
 class ScheduledTask(Protocol):
@@ -50,7 +55,7 @@ class Week:
     days: list[Day]
     closed: bool = False
     # Resultado gravado no fechamento. Semana fechada mostra o que valeu na
-    # época, mesmo que a rotina tenha mudado depois.
+    # época, mesmo que a rotina (ou a regra dos 90%) tenha mudado depois.
     closed_complete: bool | None = None
 
     @property
@@ -71,10 +76,17 @@ class Week:
 
     @property
     def complete(self) -> bool:
+        """A semana valeu: fez pelo menos WEEK_GOAL_PERCENT% das tarefas.
+
+        O nome ficou "complete" (é o da coluna week_reviews.complete); hoje
+        quer dizer "bateu a meta da semana", não necessariamente 100%.
+        """
         if self.closed_complete is not None:
             return self.closed_complete
-        # Semana sem nenhuma tarefa não é "completa": não dá recompensa à toa.
-        return self.total > 0 and self.done == self.total
+        # Semana sem nenhuma tarefa não vale: não dá recompensa à toa.
+        # Conta só com inteiros (done/total >= 90/100, multiplicado em
+        # cruz): sem divisão, não tem arredondamento mexendo na regra.
+        return self.total > 0 and self.done * 100 >= WEEK_GOAL_PERCENT * self.total
 
 
 def build_week(
